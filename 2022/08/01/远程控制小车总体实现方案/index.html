@@ -1,0 +1,741 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Pipi horse">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一.参考文档FRP配置正向代理与反向代理NoMachine配置NoMachine配置2NoMachine下载链接 二.环境 2.1硬件环境 2.1.1 jetson nano小车 2.1.2 ZTE中兴MF79U无线网卡+流量套餐，购买链接网卡配置步骤：1.下载APP 飞猫管家2.设备-&gt;添加设备-&gt;按照要求填写，IMEI在网卡背面3.实名认证4.购买流量，等流量到账5.网卡插入电脑">
+<meta property="og:type" content="article">
+<meta property="og:title" content="远程控制小车总体实现方案">
+<meta property="og:url" content="https://ml844650327.github.io/2022/08/01/%E8%BF%9C%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%B0%8F%E8%BD%A6%E6%80%BB%E4%BD%93%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="Pipi house">
+<meta property="og:description" content="一.参考文档FRP配置正向代理与反向代理NoMachine配置NoMachine配置2NoMachine下载链接 二.环境 2.1硬件环境 2.1.1 jetson nano小车 2.1.2 ZTE中兴MF79U无线网卡+流量套餐，购买链接网卡配置步骤：1.下载APP 飞猫管家2.设备-&gt;添加设备-&gt;按照要求填写，IMEI在网卡背面3.实名认证4.购买流量，等流量到账5.网卡插入电脑">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ml844650327.github.io/img/%E8%BF%9C%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%B0%8F%E8%BD%A6%E6%80%BB%E4%BD%93%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88.jpg">
+<meta property="article:published_time" content="2022-08-01T01:53:29.000Z">
+<meta property="article:modified_time" content="2022-08-02T03:13:33.248Z">
+<meta property="article:author" content="Pipi horse">
+<meta property="article:tag" content="机器人">
+<meta property="article:tag" content="方案">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ml844650327.github.io/img/%E8%BF%9C%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%B0%8F%E8%BD%A6%E6%80%BB%E4%BD%93%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88.jpg">
+  
+  
+  
+  <title>远程控制小车总体实现方案 - Pipi house</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ml844650327.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"eJCCr1iXTiVW6MK2aTTGPjXT-gzGzoHsz","app_key":"vtKyhjBqwwMnoR3sK4tbrO09","server_url":"https://ejccr1ix.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Pipi house</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="远程控制小车总体实现方案"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Pipi horse
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-01 09:53" pubdate>
+          2022年8月1日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">远程控制小车总体实现方案</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><a name="D1lw4"></a></p>
+<h1 id="一-参考文档"><a href="#一-参考文档" class="headerlink" title="一.参考文档"></a>一.参考文档</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/deng_xj/article/details/88952420">FRP配置</a><br /><a target="_blank" rel="noopener" href="https://blog.csdn.net/phoenix3k/article/details/119594002">正向代理与反向代理</a><br /><a target="_blank" rel="noopener" href="https://blog.csdn.net/cynophile/article/details/98945115">NoMachine配置</a><br /><a target="_blank" rel="noopener" href="https://blog.csdn.net/zong596568821xp/article/details/108001798?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0.pc_relevant_default&spm=1001.2101.3001.4242.1&utm_relevant_index=3">NoMachine配置2</a><br /><a target="_blank" rel="noopener" href="https://bbs.csdn.net/topics/398281121">NoMachine下载链接</a><br><a name="FixPV"></a></p>
+<h1 id="二-环境"><a href="#二-环境" class="headerlink" title="二.环境"></a>二.环境</h1><p><a name="E1hLt"></a></p>
+<h2 id="2-1硬件环境"><a href="#2-1硬件环境" class="headerlink" title="2.1硬件环境"></a>2.1硬件环境</h2><p><a name="R7kQK"></a></p>
+<h3 id="2-1-1-jetson-nano小车"><a href="#2-1-1-jetson-nano小车" class="headerlink" title="2.1.1 jetson nano小车"></a>2.1.1 jetson nano小车</h3><p><a name="ovaTZ"></a></p>
+<h3 id="2-1-2-ZTE中兴MF79U无线网卡-流量套餐，购买链接"><a href="#2-1-2-ZTE中兴MF79U无线网卡-流量套餐，购买链接" class="headerlink" title="2.1.2 ZTE中兴MF79U无线网卡+流量套餐，购买链接"></a>2.1.2 ZTE中兴MF79U无线网卡+流量套餐，<a target="_blank" rel="noopener" href="https://item.m.jd.com/product/28744469405.html?gx=RnE3kWFdPTGImNRP--sXF6FDyICMiDmOrXY&ad_od=share&utm_source=androidapp&utm_medium=appshare&utm_campaign=t_335139774&utm_term=CopyURL">购买链接</a></h3><p>网卡配置步骤：<br />1.下载APP 飞猫管家<br />2.设备-&gt;添加设备-&gt;按照要求填写，IMEI在网卡背面<br />3.实名认证<br />4.购买流量，等流量到账<br />5.网卡插入电脑开机<br />6.连接wifi，密码是网卡背面的Key<br />7.进入192.168.0.1后台，密码在网卡背面该网址的下面<br />8.设置wifi密码，后台管理密码，wifi名称<br /><strong>9.该网卡后台无法查看已连接设备的ip地址，所以尽量让网卡分配的ip地址尽量的少，才好试出小车的ip地址。高级设置-&gt;DHCP地址设置为192.168.0.100-192.168.0.103或稍微多一点。</strong><br />10.网卡插入小车，并连接网卡wifi<br />sudo .&#x2F;netconfig&#x2F;wifi.sh<br />11.<strong>此时电脑的ip地址为192.168.0.101，在xshell中创建SSH会话逐个试出小车的ip地址。</strong><br />12.进入虚拟机，重新配置分布式<br />修改 PC 端~&#x2F;.bashrc 文件 <br />在文件中修改 export ROS_MASTER_URI&#x3D;<a target="_blank" rel="noopener" href="http://xxx:11311/">http://xxx:11311</a> <br />将机器人端 IP 填入 <br />修改完成后执行 source ~&#x2F;.bashrc 使修改生效</p>
+<p><a name="GqXHx"></a></p>
+<h2 id="2-2软件环境"><a href="#2-2软件环境" class="headerlink" title="2.2软件环境"></a>2.2软件环境</h2><p><a name="FvbJB"></a></p>
+<h3 id="2-2-1-WinSCP，与小车进行文件传输"><a href="#2-2-1-WinSCP，与小车进行文件传输" class="headerlink" title="2.2.1 WinSCP，与小车进行文件传输"></a>2.2.1 WinSCP<img src="https://cdn.nlark.com/yuque/0/2022/png/22897655/1647412290918-2175213f-ecd2-4ea5-890a-e0afcb05841a.png#clientId=u3de0dbea-2097-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=52&id=u30847623&margin=%5Bobject%20Object%5D&name=image.png&originHeight=73&originWidth=94&originalType=binary&ratio=1&rotation=0&showTitle=false&size=7369&status=done&style=none&taskId=u1dcbf827-e2c9-4ba2-8d4e-3f836c58d0c&title=&width=67.1428582862932" srcset="/img/loading.gif" lazyload alt="image.png">，与小车进行文件传输</h3><p><a name="u0rVc"></a></p>
+<h3 id="2-2-2-NoMachine，远程登录小车桌面"><a href="#2-2-2-NoMachine，远程登录小车桌面" class="headerlink" title="2.2.2 NoMachine，远程登录小车桌面"></a>2.2.2 NoMachine<img src="https://cdn.nlark.com/yuque/0/2022/png/22897655/1647412359671-318e10d8-552d-4efb-88a5-808dfe6f0e7f.png#clientId=u3de0dbea-2097-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=52&id=uc1675704&margin=%5Bobject%20Object%5D&name=image.png&originHeight=73&originWidth=94&originalType=binary&ratio=1&rotation=0&showTitle=false&size=5818&status=done&style=none&taskId=ue4639bea-0367-4e69-baad-1472280aef8&title=&width=67.1428582862932" srcset="/img/loading.gif" lazyload alt="image.png">，远程登录小车桌面</h3><p><a name="Uf5IU"></a></p>
+<h3 id="2-2-3-Xshell5，与小车进行SSH通信"><a href="#2-2-3-Xshell5，与小车进行SSH通信" class="headerlink" title="2.2.3 Xshell5，与小车进行SSH通信"></a>2.2.3 Xshell5<img src="https://cdn.nlark.com/yuque/0/2022/png/22897655/1647412372850-f24a6056-10ca-4a77-96c7-950f18d9ead4.png#clientId=u3de0dbea-2097-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=52&id=u5b29bfcb&margin=%5Bobject%20Object%5D&name=image.png&originHeight=73&originWidth=94&originalType=binary&ratio=1&rotation=0&showTitle=false&size=6277&status=done&style=none&taskId=u69274c44-7ac1-4465-85dd-a5807dd1c72&title=&width=67.1428582862932" srcset="/img/loading.gif" lazyload alt="image.png">，与小车进行SSH通信</h3><p><a name="xBs4W"></a></p>
+<h3 id="2-2-4-VMware虚拟机，与小车进行分布式通信"><a href="#2-2-4-VMware虚拟机，与小车进行分布式通信" class="headerlink" title="2.2.4 VMware虚拟机，与小车进行分布式通信"></a>2.2.4 VMware虚拟机<img src="https://cdn.nlark.com/yuque/0/2022/png/22897655/1647412410457-1cb0e265-da77-453e-bfb7-1ab28c6ba0a5.png#clientId=u3de0dbea-2097-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=66&id=uf42de1ad&margin=%5Bobject%20Object%5D&name=image.png&originHeight=93&originWidth=94&originalType=binary&ratio=1&rotation=0&showTitle=false&size=9981&status=done&style=none&taskId=u034593a9-c019-409b-acb8-992cab69ff2&title=&width=67.1428582862932" srcset="/img/loading.gif" lazyload alt="image.png">，与小车进行分布式通信</h3><p><a name="JBW2e"></a></p>
+<h3 id="2-2-5-frp配置"><a href="#2-2-5-frp配置" class="headerlink" title="2.2.5 frp配置"></a>2.2.5 frp配置</h3><p>查看小车和服务器的cpu环境，下载对应版本的frp包，然后解压<br><a name="FohnE"></a></p>
+<h2 id="2-3服务器环境"><a href="#2-3服务器环境" class="headerlink" title="2.3服务器环境"></a>2.3服务器环境</h2><p><a target="_blank" rel="noopener" href="https://swas.console.aliyun.com/?accounttraceid=0602ac2b63dd409c847d13aff3212564ozti#/servers">阿里云轻量应用服务器</a><br />注：需配置防火墙<br /><img src="https://cdn.nlark.com/yuque/0/2022/png/22897655/1647412571793-df214935-1c2f-4a3f-be4d-6919eebed78e.png#clientId=u3de0dbea-2097-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=198&id=u54da3519&margin=%5Bobject%20Object%5D&name=image.png&originHeight=748&originWidth=1917&originalType=binary&ratio=1&rotation=0&showTitle=false&size=134834&status=done&style=stroke&taskId=u407be205-400d-4fb8-b5b4-7278ff44499&title=&width=508.00445556640625" srcset="/img/loading.gif" lazyload alt="image.png"><br><a name="sC2bl"></a></p>
+<h1 id="三-基本配置"><a href="#三-基本配置" class="headerlink" title="三.基本配置"></a>三.基本配置</h1><p>服务端（公网服务器）编辑的是：frps.ini<br />客户端编辑的是：frpc.ini<br><a name="OTtnH"></a></p>
+<h2 id="3-1客户端部署"><a href="#3-1客户端部署" class="headerlink" title="3.1客户端部署"></a>3.1客户端部署</h2><p>1.进入frp客户端安装的位置<br /><img src="https://cdn.nlark.com/yuque/0/2022/png/22897655/1647414867599-07e6b9d4-a1c2-4242-abdd-91530ab70e85.png#clientId=u3de0dbea-2097-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=31&id=ub39b863e&margin=%5Bobject%20Object%5D&name=image.png&originHeight=43&originWidth=906&originalType=binary&ratio=1&rotation=0&showTitle=false&size=7047&status=done&style=none&taskId=ue0cb3e05-458b-441b-b3d9-32e81618183&title=&width=647.1428681636345" srcset="/img/loading.gif" lazyload alt="image.png"><br />2.修改frpc.ini文件 <br />sudo vim .&#x2F;frpc.ini<br />添加以下内容：<br />[common]<br />server_addr &#x3D; 114.55.177.5 #公网IP<br />server_port &#x3D; 7000<br />[ssh]<br />type &#x3D; tcp<br />local_ip &#x3D; 127.0.0.1<br />local_port &#x3D; 22<br />remote_port &#x3D;6000<br />[VNC]<br />type&#x3D;tcp<br />local_ip&#x3D;127.0.0.1<br />local_port&#x3D;5900<br />remote_port&#x3D;10002<br />[NoMachine]<br />type&#x3D;tcp<br />local_ip&#x3D;127.0.0.1<br />local_port&#x3D;4000<br />remote_port&#x3D;10003<br />[MobileControl]<br />type&#x3D;tcp<br />local_ip&#x3D;127.0.0.1<br />local_port&#x3D;11311<br />remote_port&#x3D;10004</p>
+<p><strong>local_port是本地的端口，remote_port是用于访问的端口，当用户输入server_addr:remote_port访问时，代理服务器转发到local_ip:local_port上，实现了内网穿透。</strong></p>
+<p>3.设置开机自动启动<br />sudo vim &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;frpc.service <br />添加：<br />[Unit]<br />Description&#x3D;frpc daemon<br />After&#x3D;multi-user.target</p>
+<p>[Service]<br />Type&#x3D;simple<br />ExecStart&#x3D;&#x2F;home&#x2F;bingda&#x2F;Desktop&#x2F;frp_0.39.0_linux_arm64&#x2F;frpc -c &#x2F;home&#x2F;bingda&#x2F;Desktop&#x2F;frp_0.39.0_linux_arm64&#x2F;frpc.ini<br />Restart&#x3D; always<br />RestartSec&#x3D;1min</p>
+<p>[Install]<br />WantedBy&#x3D;multi-user.target</p>
+<p>保存退出</p>
+<p>#启动frpc<br />systemctl daemon-reload<br />systemctl start frpc<br />#设置为开机启动<br />systemctl enable frpc</p>
+<p>重启 sudo systemctl restart frpc<br />停止 sudo systemctl stop frpc<br />查看应用日志 sudo systemctl status frpc<br><a name="SFFvX"></a></p>
+<h2 id="3-2服务器端部署"><a href="#3-2服务器端部署" class="headerlink" title="3.2服务器端部署"></a>3.2服务器端部署</h2><p>1.进入服务器官网后台，点击远程连接，进入frp服务器安装的位置，<br />进入frp服务器安装的位置<br /><img src="https://cdn.nlark.com/yuque/0/2022/png/22897655/1647415974873-8541518f-1e56-41cf-bcd7-faf007c2acbe.png#clientId=u3de0dbea-2097-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=431&id=u5013785f&margin=%5Bobject%20Object%5D&name=image.png&originHeight=603&originWidth=1411&originalType=binary&ratio=1&rotation=0&showTitle=false&size=127167&status=done&style=none&taskId=u6e7dc9e7-86ec-4c14-9787-dd9b30f4b9b&title=&width=1007.857160020848" srcset="/img/loading.gif" lazyload alt="image.png"><br />2.修改frps.ini文件 <br />sudo vim .&#x2F;frps.ini<br />添加以下内容：<br />[common]<br />bind_port &#x3D; 7000      # 客户端与服务端进行通信的端口，即frp服务端口，需与客户端server_port一致<br />3.设置为开机自动启动<br />sudo vim &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;frps.service<br />添加以下内容：<br />[Unit]<br />Description&#x3D;frps daemon<br />After&#x3D;syslog.target  network.target<br />Wants&#x3D;network.target</p>
+<p>[Service]<br />Type&#x3D;simple<br />ExecStart&#x3D;&#x2F;home&#x2F;admin&#x2F;frp_0.39.0_linux_amd64&#x2F;frps -c &#x2F;home&#x2F;admin&#x2F;frp_0.39.0_lin<br />ux_amd64&#x2F;frps.ini<br />Restart&#x3D; always<br />RestartSec&#x3D;1min</p>
+<p>[Install]<br />WantedBy&#x3D;multi-user.target</p>
+<p>#启动frps<br />systemctl daemon-reload<br />systemctl start frps</p>
+<p>#设置为开机启动<br />systemctl enable frps</p>
+<p><a name="M5eIu"></a></p>
+<h1 id="四-远程控制"><a href="#四-远程控制" class="headerlink" title="四.远程控制"></a>四.远程控制</h1><p><a name="qhirE"></a></p>
+<h2 id="1-启动底盘"><a href="#1-启动底盘" class="headerlink" title="1.启动底盘"></a>1.启动底盘</h2><p>roslaunch base_control base_control.launch<br><a name="CZRSW"></a></p>
+<h2 id="2-开启摄像头"><a href="#2-开启摄像头" class="headerlink" title="2.开启摄像头"></a>2.开启摄像头</h2><p>roslaunch robot_vision robot_camera.launch<br><a name="hktIo"></a></p>
+<h2 id="3-开启图形化"><a href="#3-开启图形化" class="headerlink" title="3.开启图形化"></a>3.开启图形化</h2><p>rqt_image_view<br><a name="oKRLV"></a></p>
+<h2 id="4-手动开启tel"><a href="#4-手动开启tel" class="headerlink" title="4.手动开启tel"></a>4.手动开启tel</h2><p>rosrun teleop_twist_keyboard teleop_twist_keyboard.py</p>
+<p><a name="T6cFx"></a></p>
+<h2 id="第二种方案-把无线网卡的power-management-关掉-试过之后效果明显-基本上没再掉过线"><a href="#第二种方案-把无线网卡的power-management-关掉-试过之后效果明显-基本上没再掉过线" class="headerlink" title="第二种方案, 把无线网卡的power management 关掉. 试过之后效果明显, 基本上没再掉过线:"></a>第二种方案, 把无线网卡的power management 关掉. 试过之后效果明显, 基本上没再掉过线:</h2><br /> 
+<a name="Csrin"></a>
+## 查看wifi连接情况
+$ lspci<br />02:00.0 Network controller: Intel Corporation Centrino Wireless-N 1000 [Condor Peak]<br />$ sudo lshw -class network<br />*-network<br />description: Wireless interface<br />product: Centrino Wireless-N 1000 [Condor Peak]<br />vendor: Intel Corporation<br />physical id: 0<br />bus info: pci@0000:02:00.0<br />logical name: wlp2s0<br />version: 00<br />serial: 00:26:c7:69:8d:d0<br />width: 64 bits<br />clock: 33MHz<br />capabilities: pm msi pciexpress bus_master cap_list ethernet physical wireless<br />configuration: broadcast=yes driver=iwlwifi driverversion=4.13.0-26-generic firmware=39.31.5.1 build 35138 ip=192.168.0.107 latency=0 link=yes multicast=yes wireless=IEEE 802.11<br />resources: irq:28 memory:f2400000-f2401fff<br />网上搜的第一种解决方案, 感觉效果不太明显:<br />将/etc/ppp/options 文件中的 lcp-echo-failure 4 改为 lcp-echo-failure 40
+<a name="EsZmU"></a>
+## 第二种方案, 把无线网卡的power management 关掉. 试过之后效果明显, 基本上没再掉过线:
+关掉之前查看wifi连接情况如下<br />$ sudo iwconfig<br />enp0s25 no wireless extensions.<br />wlp2s0 IEEE 802.11 ESSID:“wonderful_world”<br />Mode:Managed Frequency:2.462 GHz Access Point: 8C:A6:DF:AE:E0:17<br />Bit Rate=121.5 Mb/s Tx-Power=14 dBm<br />Retry short limit:7 RTS thr:off Fragment thr:off<br />Encryption key:off<br />Power Management:on<br />Link Quality=70/70 Signal level=-40 dBm<br />Rx invalid nwid:0 Rx invalid crypt:0 Rx invalid frag:0<br />Tx excessive retries:115 Invalid misc:121 Missed beacon:0<br />lo no wireless extensions.<br />关掉wifi的power management<br />$ sudo iwconfig wlp2s0 power off<br />查看关掉之后的WiFi情况<br />$ sudo iwconfig<br />enp0s25 no wireless extensions.<br />wlp2s0 IEEE 802.11 ESSID:“wonderful_world”<br />Mode:Managed Frequency:2.462 GHz Access Point: 8C:A6:DF:AE:E0:17<br />Bit Rate=121.5 Mb/s Tx-Power=14 dBm<br />Retry short limit:7 RTS thr:off Fragment thr:off<br />Encryption key:off<br />Power Management:off<br />Link Quality=70/70 Signal level=-31 dBm<br />Rx invalid nwid:0 Rx invalid crypt:0 Rx invalid frag:0<br />Tx excessive retries:119 Invalid misc:132 Missed beacon:0<br />lo no wireless extensions.[
+
+<p>]()摄像头<br />roslaunch robot_vision robot_camera.launch<br />底盘<br />roslaunch base_control base_control.launch<br />rqt_image_view</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Robot/" class="category-chain-item">Robot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%9C%BA%E5%99%A8%E4%BA%BA/">#机器人</a>
+      
+        <a href="/tags/%E6%96%B9%E6%A1%88/">#方案</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>远程控制小车总体实现方案</div>
+      <div>https://ml844650327.github.io/2022/08/01/远程控制小车总体实现方案/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Pipi horse</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/04/%E9%81%87%E8%A7%81Orgel/" title="遇见Orgel">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">遇见Orgel</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"eJCCr1iXTiVW6MK2aTTGPjXT-gzGzoHsz","appKey":"vtKyhjBqwwMnoR3sK4tbrO09","path":"window.location.pathname","placeholder":"...","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"enable":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/assets/Epsilon2.1.model.json"},"display":{"position":"right","width":250,"height":500},"mobile":{"show":true},"react":{"opacity":0.8},"log":false});</script></body>
+</html>
